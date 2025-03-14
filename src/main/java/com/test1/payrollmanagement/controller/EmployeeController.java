@@ -2,7 +2,6 @@ package com.test1.payrollmanagement.controller;
 
 import com.test1.payrollmanagement.model.Employee;
 import com.test1.payrollmanagement.service.EmployeeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,24 +11,28 @@ import java.util.List;
 @Controller
 @RequestMapping("/employees")
 public class EmployeeController {
-    @Autowired
-    private EmployeeService employeeService;
+    private final EmployeeService employeeService;
 
+    public EmployeeController(EmployeeService employeeService) {this.employeeService = employeeService;}
     @GetMapping
-    public String listEmployees(Model model) {
-        List<Employee> employees = employeeService.getAllEmployees();
+    public String listEmployees(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
+        List<Employee> employees = (keyword != null && !keyword.isEmpty())
+                ? employeeService.searchEmployees(keyword)
+                : employeeService.getAllEmployees();
+
         model.addAttribute("employees", employees);
-        return "employee/list"; // Tên view
+        model.addAttribute("keyword", keyword);
+        return "employee/list";
     }
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("employee", new Employee());
-        return "employee/create"; // Tên view
+        return "employee/create";
     }
 
-    @PostMapping
-    public String createEmployee(@ModelAttribute Employee employee) {
+    @PostMapping("/save")
+    public String saveEmployee(@ModelAttribute Employee employee) {
         employeeService.saveEmployee(employee);
         return "redirect:/employees";
     }
@@ -37,13 +40,15 @@ public class EmployeeController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         Employee employee = employeeService.getEmployeeById(id);
+        if (employee == null) return "redirect:/employees"; // Nếu không tìm thấy nhân viên, quay lại danh sách
         model.addAttribute("employee", employee);
-        return "employee/edit"; // Tên view
+        return "employee/edit"; // Trả về trang edit
     }
 
-    @PostMapping("/update/{id}")
-    public String updateEmployee(@PathVariable Long id, @ModelAttribute Employee employee) {
-        employee.setId(id);
+
+
+    @PostMapping("/update")
+    public String updateEmployee(@ModelAttribute Employee employee) {
         employeeService.saveEmployee(employee);
         return "redirect:/employees";
     }
@@ -52,12 +57,5 @@ public class EmployeeController {
     public String deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return "redirect:/employees";
-    }
-
-    @GetMapping("/search")
-    public String searchEmployees(@RequestParam String name, Model model) {
-        List<Employee> employees = employeeService.searchEmployees(name);
-        model.addAttribute("employees", employees);
-        return "employee/list"; // Tên view
     }
 }

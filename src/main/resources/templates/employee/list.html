@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h2 class="mb-3">Employee List</h2>
+
+    <form method="get" action="/employees" class="d-flex mb-3">
+        <input type="text" name="keyword" class="form-control me-2" placeholder="Nhập tên..." th:value="${keyword}">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <a href="/employees/create" class="btn btn-success mb-3">Add Employee</a>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Salary</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="employee : ${employees}">
+            <td th:text="${employee.id}"></td>
+            <td th:text="${employee.name}"></td>
+            <td th:text="${employee.age}"></td>
+            <td th:text="${employee.salary}"></td>
+            <td>
+                <a th:href="@{/employees/edit/{id}(id=${employee.id})}" class="btn btn-warning btn-sm">Edit</a>
+                <a th:href="@{/employees/delete/{id}(id=${employee.id})}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('Bạn có chắc chắn muốn xóa không?')">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

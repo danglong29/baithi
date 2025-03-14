@@ -9,11 +9,16 @@ import java.util.List;
 
 @Service
 public class EmployeeService {
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
+
+    public EmployeeService(EmployeeRepository employeeRepository) {this.employeeRepository = employeeRepository;}
 
     public List<Employee> getAllEmployees() {
         return employeeRepository.findAll();
+    }
+
+    public List<Employee> searchEmployees(String keyword) {
+        return employeeRepository.findByNameContainingIgnoreCase(keyword);
     }
 
     public Employee getEmployeeById(Long id) {
@@ -28,7 +33,5 @@ public class EmployeeService {
         employeeRepository.deleteById(id);
     }
 
-    public List<Employee> searchEmployees(String name) {
-        return employeeRepository.findByNameContaining(name);
-    }
+
 }
